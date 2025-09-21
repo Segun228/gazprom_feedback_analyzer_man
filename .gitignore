@@ -1,0 +1,50 @@
+# 📜 Log-files 
+logs  
+*.log  
+npm-debug.log*  
+yarn-debug.log*  
+yarn-error.log*  
+pnpm-debug.log*  
+lerna-debug.log*  
+
+# 🔒 COnfidentional environment files
+.env  
+
+# 📦 Node.js dir
+node_modules/  
+
+# 🚀 Dist dirs
+dist/  
+dist-ssr/  
+
+# ⚙️ Compiled c/c++ files
+*.o   # Объектные файлы  
+*.a   # Архивные библиотеки  
+*.so  # Разделяемые библиотеки  
+
+# 🚧 Temporary build files  
+_obj/  
+_test/  
+vendor/  # Внешние зависимости (можно закоммитить, если нужно)  
+air.toml
+
+# 🛠️ Temporary dir (air)  
+tmp/  
+
+# 🍏 MacOS system files  
+.DS_Store  
+
+# 🗂️ Binary go-files  
+/bin/  
+
+# 🎨 Editors files
+/.vscode
+/.vscode/*  
+/.devcontainer/*
+!.vscode/extensions.json  
+.idea  
+*.suo  
+*.ntvs*  
+*.njsproj  
+*.sln  
+*.sw?
