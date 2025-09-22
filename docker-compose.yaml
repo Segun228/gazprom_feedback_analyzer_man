@@ -12,8 +12,8 @@ services:
       - clickhouse_config:/etc/clickhouse-server
     environment:
       - CLICKHOUSE_DB=${CLICKHOUSE_DB}
-      - CLICKHOUSE_USER=${CLICKHOUSE_DB}
-      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_DB}
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
   api-gateway:
     build:
       context: .
