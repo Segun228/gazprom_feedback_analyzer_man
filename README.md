@@ -71,11 +71,11 @@
 - Логи API Gateway:
 
 ```bash
-docker logs -f api-gateway
+   docker logs -f api-gateway
 ```
 
 - Список топиков Kafka:
 
 ```bash
-docker exec -it kafka kafka-topics --bootstrap-server localhost:9092 --list
+   docker exec -it kafka kafka-topics --bootstrap-server localhost:9092 --list
 ```
