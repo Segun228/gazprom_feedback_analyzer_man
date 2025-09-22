@@ -14,6 +14,14 @@ services:
       - CLICKHOUSE_DB=${CLICKHOUSE_DB}
       - CLICKHOUSE_USER=${CLICKHOUSE_DB}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_DB}
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    container_name: api-gateway
+    restart: on-failure
+    ports:
+      - "3000:3000"
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
     container_name: zookeeper
