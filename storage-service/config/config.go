@@ -30,7 +30,7 @@ var Cfg Config
 func InitConfig() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath("./api-gateway")
+	viper.AddConfigPath("./storage-service")
 
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
