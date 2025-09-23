@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY storage-service/go.mod storage-service/go.sum ./storage-service/
 
-RUN echo "go 1.24" >> go.work
+RUN echo "go 1.24.0" >> go.work
 RUN echo "use (" >> go.work
 RUN echo "  ./storage-service" >> go.work
 RUN echo ")" >> go.work
