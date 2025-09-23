@@ -14,6 +14,22 @@ services:
       - CLICKHOUSE_DB=${CLICKHOUSE_DB}
       - CLICKHOUSE_USER=${CLICKHOUSE_USER}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+
+  storage-service:
+    build:
+      context: .
+      dockerfile: ./storage-service/Dockerfile
+    container_name: storage-service
+    restart: on-failure
+    depends_on:
+      - clickhouse
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_NAME=${CLICKHOUSE_DB}
+      - DB_USER=${CLICKHOUSE_USER}
+      - DB_PASSWORD=${CLICKHOUSE_PASSWORD}
+      - KAFKA_BROKERS=${KAFKA_BROKERS}
   api-gateway:
     build:
       context: .
@@ -22,6 +38,8 @@ services:
     restart: on-failure
     ports:
       - "3000:3000"
+    depends_on:
+      - storage-service
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
     container_name: zookeeper

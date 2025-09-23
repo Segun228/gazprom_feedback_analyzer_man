@@ -1,4 +1,4 @@
 http:
   port: "3000"
 urls:
-  test_service: "http://test-service:3001"
+  storage_service: "http://storage-service:3001"

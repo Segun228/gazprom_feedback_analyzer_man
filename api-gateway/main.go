@@ -22,21 +22,21 @@ func main() {
 	config.InitLogger()
 	config.InitConfig()
 
-	if config.Cfg.URLs.TestService == "" {
-		slog.Error("TEST_SERVICE_URL is not set")
+	if config.Cfg.URLs.StorageService == "" {
+		slog.Error("STORAGE_SERVICE_URL is not set")
 		os.Exit(1)
 	}
 
-	testProxy := createReverseProxy(config.Cfg.URLs.TestService) // test variable
+	storageProxy := createReverseProxy(config.Cfg.URLs.StorageService)
 
-	testProxyHandler := http.StripPrefix("/test", testProxy) // test variable
+	storageProxyHandler := http.StripPrefix("/storage", storageProxy)
 
 	r := chi.NewRouter()
 
 	r.Group(func(r chi.Router) {
 		slog.Info("setting up public routes")
 
-		r.Get("/test", testProxyHandler.ServeHTTP) // test variable
+		r.Get("/storage/health", storageProxyHandler.ServeHTTP)
 	})
 
 	httpServer := &http.Server{

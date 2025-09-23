@@ -12,9 +12,17 @@ type Config struct {
 	HTTP struct {
 		Port string `mapstructure:"port"`
 	} `mapstructure:"http"`
-	URLs struct {
-		StorageService string `mapstructure:"storage_service"`
-	} `mapstructure:"urls"`
+	DB struct {
+		Name     string `mapstructure:"name"`
+		User     string `mapstructure:"user"`
+		Password string `mapstructure:"password"`
+		Port     string `mapstructure:"port"`
+	} `mapstructure:"db"`
+	Kafka struct {
+		Brokers string `mapstructure:"brokers"`
+		Topics  struct {
+		} `mapstructure:"topics"`
+	} `mapstructure:"kafka"`
 }
 
 var Cfg Config
@@ -22,7 +30,7 @@ var Cfg Config
 func InitConfig() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath("./api-gateway")
+	viper.AddConfigPath("./storage-service")
 
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
