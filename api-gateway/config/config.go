@@ -13,7 +13,7 @@ type Config struct {
 		Port string `mapstructure:"port"`
 	} `mapstructure:"http"`
 	URLs struct {
-		TestService string `mapstructure:"test_service"` // test variable
+		StorageService string `mapstructure:"storage_service"`
 	} `mapstructure:"urls"`
 }
 
