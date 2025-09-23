@@ -85,3 +85,5 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip
+=======
+*.sw?
