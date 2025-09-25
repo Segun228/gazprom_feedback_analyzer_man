@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -10,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/api"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/config"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/database"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/store"
 )
 
 func main() {
@@ -24,19 +23,15 @@ func main() {
 	defer stop()
 
 	database.NewConnection()
+	db := database.DB
 
-	r := chi.NewRouter()
+	dataStore := store.NewDataStore(db)
 
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Storage service is up and running!")
-	})
+	router := api.SetupRoutes(dataStore)
 
 	httpServer := &http.Server{
 		Addr:    ":" + config.Cfg.HTTP.Port,
-		Handler: r,
+		Handler: router,
 	}
 
 	go func() {

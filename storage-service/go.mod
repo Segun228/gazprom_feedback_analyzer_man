@@ -4,7 +4,10 @@ go 1.24.0
 
 toolchain go1.24.7
 
-require github.com/spf13/viper v1.21.0
+require (
+	github.com/go-chi/chi v1.5.5
+	github.com/spf13/viper v1.21.0
+)
 
 require (
 	github.com/ClickHouse/ch-go v0.68.0 // indirect
