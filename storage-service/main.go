@@ -12,6 +12,7 @@ import (
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/api"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/config"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/database"
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/messaging"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/store"
 )
 
@@ -19,11 +20,15 @@ func main() {
 	config.InitLogger()
 	config.InitConfig()
 
+	messaging.InitTopicsNames()
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	database.NewConnection()
 	db := database.DB
+
+	messaging.InitTopics()
 
 	dataStore := store.NewDataStore(db)
 
@@ -33,6 +38,8 @@ func main() {
 		Addr:    ":" + config.Cfg.HTTP.Port,
 		Handler: router,
 	}
+
+	messaging.StartConsumers(ctx, dataStore)
 
 	go func() {
 		slog.Info("starting storage service", "port", config.Cfg.HTTP.Port)
