@@ -61,7 +61,7 @@ class PredictBatchResponse(BaseModel):
     results: List[PredictResponse]
 
 
-@app.post("/predict", response_model=PredictResponse)
+@app.post("/predict_single", response_model=PredictResponse)
 def predict_endpoint(req: PredictRequest):
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Empty text")
@@ -69,7 +69,7 @@ def predict_endpoint(req: PredictRequest):
     return PredictResponse(text=req.text, label=preds[0], probabilities=probs[0].tolist())
 
 
-@app.post("/predict_batch", response_model=PredictBatchResponse)
+@app.post("/predict", response_model=PredictBatchResponse)
 def predict_batch_endpoint(req: PredictBatchRequest):
     if not req.texts:
         raise HTTPException(status_code=400, detail="Empty texts list")
@@ -82,3 +82,16 @@ def predict_batch_endpoint(req: PredictBatchRequest):
 @app.get("/health")
 def health():
     return {"status": model.config.num_labels == 3, "device": str(device)}
+#
+# Text: Очень доволен приложением банка
+# Class: 2
+# Probabilities: [0.03496845066547394, 0.15588398277759552, 0.8091475367546082]
+# Text: Очень доволен приложением банка
+# Class: 2
+# Probabilities: [0.03496844694018364, 0.15588392317295074, 0.8091475963592529]
+# Text: Приложение виснет, поддержка ужас
+# Class: 0
+# Probabilities: [0.6237407326698303, 0.3564715087413788, 0.019787730649113655]
+# Text: Обычный опыт, ничего особенного
+# Class: 2
+# Probabilities: [0.007893973030149937, 0.4094514548778534, 0.5826546549797058]
