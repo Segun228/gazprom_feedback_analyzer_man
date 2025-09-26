@@ -14,6 +14,10 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
+type ProcessedDataEvent struct {
+	Batch []models.Datum `json:"batch"`
+}
+
 func StartConsumers(ctx context.Context, dataStore *store.DataStore) {
 	go startTopicConsumer(ctx, ProcessedDataTopic, config.Cfg.Kafka.GroupIDs.ModelsService, func(ctx context.Context, msg kafka.Message) {
 		handleProcessedData(ctx, msg, dataStore)
@@ -70,17 +74,17 @@ func startTopicConsumer(ctx context.Context, topic, groupID string, handler func
 func handleProcessedData(ctx context.Context, msg kafka.Message, dataStore *store.DataStore) {
 	slog.Info("handling data batch", "topic", ProcessedDataTopic)
 
-	var batch []models.Datum
-	if err := json.Unmarshal(msg.Value, &batch); err != nil {
+	var event ProcessedDataEvent
+	if err := json.Unmarshal(msg.Value, &event); err != nil {
 		slog.Error("failed to unmarshal Kafka message", "error", err)
 		return
 	}
-	slog.Info("processing batch of data", "count", len(batch))
+	slog.Info("processing batch of data", "count", len(event.Batch))
 
-	if err := dataStore.AddMany(ctx, batch); err != nil {
+	if err := dataStore.AddMany(ctx, event.Batch); err != nil {
 		slog.Error("failed to insert batch into Clickhouse", "error", err)
 		return
 	}
 
-	slog.Info("data successfully inserted into database", "count", len(batch))
+	slog.Info("data successfully inserted into database", "count", len(event.Batch))
 }
