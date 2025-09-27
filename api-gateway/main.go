@@ -37,6 +37,11 @@ func main() {
 		slog.Info("setting up public routes")
 
 		r.Get("/storage/health", storageProxyHandler.ServeHTTP)
+
+		r.Get("/storage", storageProxyHandler.ServeHTTP)
+		r.Get("/storage/{id}", storageProxyHandler.ServeHTTP)
+		r.Post("/storage", storageProxyHandler.ServeHTTP)
+		r.Delete("/storage/{id}", storageProxyHandler.ServeHTTP)
 	})
 
 	httpServer := &http.Server{

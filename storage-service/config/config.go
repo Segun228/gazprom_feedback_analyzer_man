@@ -19,8 +19,12 @@ type Config struct {
 		Port     string `mapstructure:"port"`
 	} `mapstructure:"db"`
 	Kafka struct {
-		Brokers string `mapstructure:"brokers"`
-		Topics  struct {
+		Brokers  string `mapstructure:"brokers"`
+		GroupIDs struct {
+			ModelsService string `mapstructure:"models_service"`
+		} `mapstructure:"group_ids"`
+		Topics struct {
+			ProcessedData string `mapstructure:"processed_data"`
 		} `mapstructure:"topics"`
 	} `mapstructure:"kafka"`
 }

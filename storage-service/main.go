@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -10,34 +9,37 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/api"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/config"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/database"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/messaging"
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/store"
 )
 
 func main() {
 	config.InitLogger()
 	config.InitConfig()
 
+	messaging.InitTopicsNames()
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	database.NewConnection()
+	db := database.DB
 
-	r := chi.NewRouter()
+	messaging.InitTopics()
 
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	dataStore := store.NewDataStore(db)
 
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Storage service is up and running!")
-	})
+	router := api.SetupRoutes(dataStore)
 
 	httpServer := &http.Server{
 		Addr:    ":" + config.Cfg.HTTP.Port,
-		Handler: r,
+		Handler: router,
 	}
+
+	messaging.StartConsumers(ctx, dataStore)
 
 	go func() {
 		slog.Info("starting storage service", "port", config.Cfg.HTTP.Port)
