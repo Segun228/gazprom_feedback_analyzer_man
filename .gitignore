@@ -75,6 +75,8 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.tsv
+*.tfevents
 MANIFEST
 
 # PyInstaller
@@ -87,3 +89,12 @@ pip-log.txt
 pip
 =======
 *.sw?
+
+# Игнорировать все JSON-файлы
+*.json
+
+# Игнорировать все CSV-файлы
+*.csv
+
+# Игнорировать все Excel-файлы
+*.xlsx
