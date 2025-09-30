@@ -17,6 +17,9 @@ type Config struct {
 		User     string `mapstructure:"user"`
 		Password string `mapstructure:"password"`
 		Port     string `mapstructure:"port"`
+		Seeders  struct {
+			File string `mapstructure:"file"`
+		} `mapstructure:"seeders"`
 	} `mapstructure:"db"`
 	Kafka struct {
 		Brokers  string `mapstructure:"brokers"`

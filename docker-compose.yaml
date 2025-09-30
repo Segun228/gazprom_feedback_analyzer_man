@@ -57,11 +57,14 @@ services:
       - clickhouse
     ports:
       - "3001:3001"
+    volumes:
+      - ./storage-service/seeders:/app/seeders
     environment:
       - DB_NAME=${CLICKHOUSE_DB}
       - DB_USER=${CLICKHOUSE_USER}
       - DB_PASSWORD=${CLICKHOUSE_PASSWORD}
       - KAFKA_BROKERS=${KAFKA_BROKERS}
+      - DB_SEEDERS_FILE=${DB_SEEDERS_FILE}
   api-gateway:
     build:
       context: .
