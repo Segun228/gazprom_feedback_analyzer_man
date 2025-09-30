@@ -32,9 +32,6 @@ services:
     stop_grace_period: 30s
 
   superset:
-    build:
-      context: .
-      dockerfile: ./superset/Dockerfile
     image: preset/superset:latest
     container_name: superset
     ports:
