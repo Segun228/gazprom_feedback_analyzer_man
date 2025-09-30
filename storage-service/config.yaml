@@ -7,6 +7,7 @@ db:
   port: "9000"
   seeders:
     file: ""
+  drop_every_relaunch: ""
 kafka: 
   brokers: ""
   group_ids:

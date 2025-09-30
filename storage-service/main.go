@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -30,9 +31,15 @@ func main() {
 	database.NewConnection()
 	db := database.DB
 
-	dataStore := store.NewDataStore(db)
+	if config.Cfg.DB.DropEveryRelaunch {
+		migrations.DropTables(db)
+	}
 
 	migrations.Migrate(db)
+
+	slog.Info(fmt.Sprintf("%v", config.Cfg.DB.DropEveryRelaunch))
+
+	dataStore := store.NewDataStore(db)
 	seeders.Seed(db, dataStore)
 
 	messaging.InitTopics()

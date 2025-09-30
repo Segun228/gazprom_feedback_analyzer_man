@@ -65,6 +65,7 @@ services:
       - DB_PASSWORD=${CLICKHOUSE_PASSWORD}
       - KAFKA_BROKERS=${KAFKA_BROKERS}
       - DB_SEEDERS_FILE=${DB_SEEDERS_FILE}
+      - DB_DROP_EVERY_RELAUNCH=${DB_DROP_EVERY_RELAUNCH}
   api-gateway:
     build:
       context: .

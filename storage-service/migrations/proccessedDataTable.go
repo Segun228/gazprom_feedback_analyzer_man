@@ -37,3 +37,11 @@ func CreateProcessedDataTable(db clickhouse.Conn) {
 		slog.Info("processed_data table created successfully!")
 	}
 }
+
+func DropProcessedDataTable(db clickhouse.Conn) {
+	ctx := context.Background()
+	if err := db.Exec(ctx, "DROP TABLE IF EXISTS processed_data"); err != nil {
+		slog.Error("failed to drop processed_data", "error", err)
+		os.Exit(1)
+	}
+}
