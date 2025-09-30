@@ -13,7 +13,8 @@ type Config struct {
 		Port string `mapstructure:"port"`
 	} `mapstructure:"http"`
 	URLs struct {
-		StorageService string `mapstructure:"storage_service"`
+		StorageService    string `mapstructure:"storage_service"`
+		SupersetDashboard string `mapstructure:"superset_dashboard"`
 	} `mapstructure:"urls"`
 }
 
