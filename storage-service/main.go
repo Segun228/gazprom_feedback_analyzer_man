@@ -13,6 +13,8 @@ import (
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/config"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/database"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/messaging"
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/migrations"
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/seeders"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/store"
 )
 
@@ -28,9 +30,12 @@ func main() {
 	database.NewConnection()
 	db := database.DB
 
-	messaging.InitTopics()
-
 	dataStore := store.NewDataStore(db)
+
+	migrations.Migrate(db)
+	seeders.Seed(db, dataStore)
+
+	messaging.InitTopics()
 
 	router := api.SetupRoutes(dataStore)
 

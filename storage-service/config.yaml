@@ -5,6 +5,8 @@ db:
   user: ""
   password: ""
   port: "9000"
+  seeders:
+    file: ""
 kafka: 
   brokers: ""
   group_ids:
