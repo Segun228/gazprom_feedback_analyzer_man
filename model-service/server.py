@@ -4,7 +4,7 @@ import pickle
 from typing import List
 
 import torch
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
@@ -100,7 +100,7 @@ class PredictBatchResponse(BaseModel):
 
 
 @app.post("/predict_single", response_model=PredictResponse)
-def predict_endpoint(req: PredictRequest):
+def predict_endpoint(req: PredictRequest, background_tasks: BackgroundTasks):
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Empty text")
 
@@ -112,12 +112,12 @@ def predict_endpoint(req: PredictRequest):
         probabilities=probs[0].tolist(),
         tags=extract_tags(req.text)
     )
-    build_message_batch([prediction.get_json_response()])
+    background_tasks.add_task(build_message_batch, [prediction.get_json_response()])
     return prediction
 
 
 @app.post("/predict", response_model=PredictBatchResponse)
-def predict_batch_endpoint(req: PredictBatchRequest):
+def predict_batch_endpoint(req: PredictBatchRequest, background_tasks: BackgroundTasks):
     if not req.texts:
         raise HTTPException(status_code=400, detail="Empty texts list")
     preds, probs = predict_logits(req.texts)
@@ -132,7 +132,7 @@ def predict_batch_endpoint(req: PredictBatchRequest):
         for txt, pred, prob in zip(req.texts, preds, probs)
     ]
     response = PredictBatchResponse(results=results)
-    build_message_batch(response.get_list_json_response())
+    background_tasks.add_task(build_message_batch, response.get_list_json_response())
     return response
 
 
