@@ -20,6 +20,7 @@ type Config struct {
 		Seeders  struct {
 			File string `mapstructure:"file"`
 		} `mapstructure:"seeders"`
+		DropEveryRelaunch bool `mapstructure:"drop_every_relaunch"`
 	} `mapstructure:"db"`
 	Kafka struct {
 		Brokers  string `mapstructure:"brokers"`

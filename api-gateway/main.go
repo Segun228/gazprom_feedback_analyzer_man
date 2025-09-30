@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -27,11 +28,42 @@ func main() {
 		os.Exit(1)
 	}
 
+	if config.Cfg.URLs.SupersetDashboard == "" {
+		slog.Error("SUPERSET_DASHBOARD_URL is not set")
+		os.Exit(1)
+	}
+
+	if config.Cfg.URLs.ModelsService == "" {
+		slog.Error("MODELS_SERVICE_URL is not set")
+		os.Exit(1)
+	}
+
 	storageProxy := createReverseProxy(config.Cfg.URLs.StorageService)
+	modelsProxy := createReverseProxy(config.Cfg.URLs.ModelsService)
 
 	storageProxyHandler := http.StripPrefix("/storage", storageProxy)
+	modelsProxyHandler := http.StripPrefix("/models", modelsProxy)
 
 	r := chi.NewRouter()
+
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if after, ok := strings.CutPrefix(r.URL.Path, "/superset"); ok {
+				path := after
+				if path == "" {
+					path = "/"
+				}
+				redirectURL := "http://localhost:8088" + path
+				if r.URL.RawQuery != "" {
+					redirectURL += "?" + r.URL.RawQuery
+				}
+				slog.Info("Redirecting superset request", "from", r.URL.Path, "to", redirectURL)
+				http.Redirect(w, r, redirectURL, http.StatusMovedPermanently)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	})
 
 	r.Group(func(r chi.Router) {
 		slog.Info("setting up public routes")
@@ -42,6 +74,10 @@ func main() {
 		r.Get("/storage/{id}", storageProxyHandler.ServeHTTP)
 		r.Post("/storage", storageProxyHandler.ServeHTTP)
 		r.Delete("/storage/{id}", storageProxyHandler.ServeHTTP)
+
+		r.Get("/models/health", modelsProxyHandler.ServeHTTP)
+		r.Post("/models/predict", modelsProxyHandler.ServeHTTP)
+		r.Post("/models/predict_single", modelsProxyHandler.ServeHTTP)
 	})
 
 	httpServer := &http.Server{

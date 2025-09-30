@@ -2,3 +2,5 @@ http:
   port: "3000"
 urls:
   storage_service: "http://storage-service:3001"
+  superset_dashboard: "http://superset:8088"
+  models_service: "http://models-service:3002"
