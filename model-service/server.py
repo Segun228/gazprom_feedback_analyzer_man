@@ -5,7 +5,7 @@ import torch
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from .producer import build_message_batch
+from producer import build_message_batch
 MODEL_PATH = os.environ.get("SENTIMENT_MODEL_PATH", r"full_path_to_model")
 from datetime import datetime
 

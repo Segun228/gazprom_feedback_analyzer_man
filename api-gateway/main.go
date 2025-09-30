@@ -33,9 +33,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	if config.Cfg.URLs.ModelsService == "" {
+		slog.Error("MODELS_SERVICE_URL is not set")
+		os.Exit(1)
+	}
+
 	storageProxy := createReverseProxy(config.Cfg.URLs.StorageService)
+	modelsProxy := createReverseProxy(config.Cfg.URLs.ModelsService)
 
 	storageProxyHandler := http.StripPrefix("/storage", storageProxy)
+	modelsProxyHandler := http.StripPrefix("/models", modelsProxy)
 
 	r := chi.NewRouter()
 
@@ -67,6 +74,10 @@ func main() {
 		r.Get("/storage/{id}", storageProxyHandler.ServeHTTP)
 		r.Post("/storage", storageProxyHandler.ServeHTTP)
 		r.Delete("/storage/{id}", storageProxyHandler.ServeHTTP)
+
+		r.Get("/models/health", modelsProxyHandler.ServeHTTP)
+		r.Post("/models/predict", modelsProxyHandler.ServeHTTP)
+		r.Post("/models/predict_single", modelsProxyHandler.ServeHTTP)
 	})
 
 	httpServer := &http.Server{

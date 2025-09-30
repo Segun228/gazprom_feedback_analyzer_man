@@ -66,6 +66,28 @@ services:
       - KAFKA_BROKERS=${KAFKA_BROKERS}
       - DB_SEEDERS_FILE=${DB_SEEDERS_FILE}
       - DB_DROP_EVERY_RELAUNCH=${DB_DROP_EVERY_RELAUNCH}
+  models-service:
+    build:
+      context: .
+      dockerfile: ./model-service/Dockerfile
+    container_name: models-service
+    restart: on-failure
+    ports:
+      - "3002:3002"
+    depends_on:
+      - kafka
+    environment:
+      - SENTIMENT_MODEL_PATH=/app/sentimentmodel
+      - KAFKA_BROKER_DOCKER=${KAFKA_BROKER_DOCKER}
+      - KAFKA_BROKER_URL=${KAFKA_BROKER_URL}
+      - KAFKA_TOPIC=${KAFKA_TOPIC}
+      - PRODUCER_CLIENT_ID=${PRODUCER_CLIENT_ID}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
   api-gateway:
     build:
       context: .
@@ -76,6 +98,7 @@ services:
       - "3000:3000"
     depends_on:
       - storage-service
+      - models-service
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
     container_name: zookeeper_new

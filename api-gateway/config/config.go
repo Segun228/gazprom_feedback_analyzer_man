@@ -15,6 +15,7 @@ type Config struct {
 	URLs struct {
 		StorageService    string `mapstructure:"storage_service"`
 		SupersetDashboard string `mapstructure:"superset_dashboard"`
+		ModelsService     string `mapstructure:"models_service"`
 	} `mapstructure:"urls"`
 }
 
