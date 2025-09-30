@@ -1,0 +1,2 @@
+clickhouse-connect>=0.6.8
+git+https://github.com/TikiTiki2k/superset-clickhouse-driver.git
