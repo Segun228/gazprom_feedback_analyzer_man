@@ -15,7 +15,7 @@ services:
       - CLICKHOUSE_DB=${CLICKHOUSE_DB}
       - CLICKHOUSE_USER=${CLICKHOUSE_USER}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
-    
+
   tabix:
     image: spoonest/clickhouse-tabix-web-client
     platform: linux/amd64
@@ -32,13 +32,12 @@ services:
     stop_grace_period: 30s
 
   superset:
-    image: apache/superset:latest
+    image: preset/superset:latest
     container_name: superset
     ports:
       - "8088:8088"
     volumes:
       - superset_data:/app/superset_home
-      - ./requirements-local.txt:/app/requirements-local.txt
     depends_on:
       - clickhouse
     environment:
@@ -56,7 +55,8 @@ services:
       start_period: 120s
     command: >
       /bin/bash -c "
-        pip install -r /app/requirements-local.txt &&  # <-- добавляем установку
+        # Простая установка без лишних флагов
+        pip install clickhouse-sqlalchemy clickhouse-connect &&
         superset db upgrade &&
         superset fab create-admin --username $${SUPERSET_ADMIN_USERNAME} --firstname $${SUPERSET_ADMIN_FIRSTNAME} --lastname $${SUPERSET_ADMIN_LASTNAME} --email $${SUPERSET_ADMIN_EMAIL} --password $${SUPERSET_ADMIN_PASSWORD} &&
         superset init &&
