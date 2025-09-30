@@ -15,12 +15,27 @@ services:
       - CLICKHOUSE_DB=${CLICKHOUSE_DB}
       - CLICKHOUSE_USER=${CLICKHOUSE_USER}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
-    
+
+  tabix:
+    image: spoonest/clickhouse-tabix-web-client
+    platform: linux/amd64
+    container_name: tabix_new
+    ports:
+      - "8124:80"
+    depends_on:
+      - clickhouse
+    environment:
+      CLICKHOUSE_URL: "http://clickhouse:8123"
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: default
+      CLICKHOUSE_DB: default
+    stop_grace_period: 30s
 
   superset:
     build:
       context: .
       dockerfile: ./superset/Dockerfile
+    image: preset/superset:latest
     container_name: superset
     ports:
       - "8088:8088"
@@ -31,7 +46,7 @@ services:
     environment:
       - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY}
       - SUPERSET_ADMIN_USERNAME=${SUPERSET_ADMIN_USERNAME}
-      - SUPERSET_ADMIN_PASSWORD=${SUPERSET_ADMIN_PASSWORD} 
+      - SUPERSET_ADMIN_PASSWORD=${SUPERSET_ADMIN_PASSWORD}
       - SUPERSET_ADMIN_EMAIL=${SUPERSET_ADMIN_EMAIL}
       - SUPERSET_ADMIN_FIRSTNAME=Admin
       - SUPERSET_ADMIN_LASTNAME=User
@@ -43,6 +58,8 @@ services:
       start_period: 120s
     command: >
       /bin/bash -c "
+        # Простая установка без лишних флагов
+        pip install clickhouse-sqlalchemy clickhouse-connect &&
         superset db upgrade &&
         superset fab create-admin --username $${SUPERSET_ADMIN_USERNAME} --firstname $${SUPERSET_ADMIN_FIRSTNAME} --lastname $${SUPERSET_ADMIN_LASTNAME} --email $${SUPERSET_ADMIN_EMAIL} --password $${SUPERSET_ADMIN_PASSWORD} &&
         superset init &&
