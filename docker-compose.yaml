@@ -18,7 +18,9 @@ services:
     
 
   superset:
-    image: apache/superset:latest
+    build:
+      context: .
+      dockerfile: ./superset/Dockerfile
     container_name: superset
     ports:
       - "8088:8088"
