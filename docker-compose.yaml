@@ -80,6 +80,8 @@ services:
     restart: on-failure
     ports:
       - "3000:3000"
+    environment:
+      - HTTP_PUBLIC_DOMAIN=${HTTP_PUBLIC_DOMAIN}
     depends_on:
       - storage-service
       - models-service
@@ -131,10 +133,17 @@ services:
         - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
         - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
         - GF_SERVER_HTTP_PORT=8088
+        - GF_SERVER_DOMAIN=${HTTP_PUBLIC_DOMAIN}
+        - GF_SERVER_ROOT_URL=http://${HTTP_PUBLIC_DOMAIN}/dashboard
+        - GF_SERVER_SERVE_FROM_SUB_PATH=true
+        - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       depends_on:
         - clickhouse
       volumes:
         - grafana_data:/var/lib/grafana
+        - ./grafana_provisioning/dashboards:/etc/grafana/provisioning/dashboards
+        - ./grafana_provisioning/dashboards:/var/lib/grafana/dashboards
+        - ./grafana_provisioning/datasources:/etc/grafana/provisioning/datasources
 
 volumes:
   clickhouse_data:

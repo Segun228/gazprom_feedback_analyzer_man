@@ -10,7 +10,8 @@ import (
 
 type Config struct {
 	HTTP struct {
-		Port string `mapstructure:"port"`
+		Port         string `mapstructure:"port"`
+		PublicDomain string `mapstructure:"public_domain"`
 	} `mapstructure:"http"`
 	URLs struct {
 		StorageService string `mapstructure:"storage_service"`
