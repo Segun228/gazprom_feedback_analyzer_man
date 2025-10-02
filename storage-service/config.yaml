@@ -5,6 +5,12 @@ db:
   user: ""
   password: ""
   port: "9000"
+  seeders:
+    file: ""
+  drop_every_relaunch: ""
 kafka: 
   brokers: ""
+  group_ids:
+    models_service: "models_service_group"
   topics:
+    processed_data: "processed_data"

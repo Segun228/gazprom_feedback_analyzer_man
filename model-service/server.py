@@ -7,8 +7,8 @@ import torch
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-
-from .producer import build_message_batch
+from producer import build_message_batch
+from datetime import datetime
 
 MODEL_PATH = os.environ.get("SENTIMENT_MODEL_PATH",
                             r"PATH_TO_MODEL")
@@ -76,7 +76,6 @@ class PredictBatchRequest(BaseModel):
 
 from datetime import datetime
 
-
 class PredictResponse(BaseModel):
     text: str
     label: int
@@ -98,6 +97,8 @@ class PredictBatchResponse(BaseModel):
     def get_list_json_response(self):
         return [r.get_json_response() for r in self.results]
 
+def extract_tags(text: str) -> List[str]:
+    return [w for w in text.lower().split() if len(w) > 3][:5]
 
 @app.post("/predict_single", response_model=PredictResponse)
 def predict_endpoint(req: PredictRequest, background_tasks: BackgroundTasks):
@@ -113,6 +114,8 @@ def predict_endpoint(req: PredictRequest, background_tasks: BackgroundTasks):
         tags=extract_tags(req.text)
     )
     background_tasks.add_task(build_message_batch, [prediction.get_json_response()])
+
+    build_message_batch([prediction.get_json_response()])
     return prediction
 
 
@@ -120,6 +123,7 @@ def predict_endpoint(req: PredictRequest, background_tasks: BackgroundTasks):
 def predict_batch_endpoint(req: PredictBatchRequest, background_tasks: BackgroundTasks):
     if not req.texts:
         raise HTTPException(status_code=400, detail="Empty texts list")
+
     preds, probs = predict_logits(req.texts)
 
     results = [
@@ -135,6 +139,19 @@ def predict_batch_endpoint(req: PredictBatchRequest, background_tasks: Backgroun
     background_tasks.add_task(build_message_batch, response.get_list_json_response())
     return response
 
+    results = [
+        PredictResponse(
+            text=txt,
+            label=pred,
+            probabilities=prob.tolist(),
+            tags=extract_tags(txt)
+        )
+        for txt, pred, prob in zip(req.texts, preds, probs)
+    ]
+
+    response = PredictBatchResponse(results=results)
+    build_message_batch(response.get_list_json_response())
+    return response
 
 @app.get("/health")
 def health():

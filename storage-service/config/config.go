@@ -17,10 +17,18 @@ type Config struct {
 		User     string `mapstructure:"user"`
 		Password string `mapstructure:"password"`
 		Port     string `mapstructure:"port"`
+		Seeders  struct {
+			File string `mapstructure:"file"`
+		} `mapstructure:"seeders"`
+		DropEveryRelaunch bool `mapstructure:"drop_every_relaunch"`
 	} `mapstructure:"db"`
 	Kafka struct {
-		Brokers string `mapstructure:"brokers"`
-		Topics  struct {
+		Brokers  string `mapstructure:"brokers"`
+		GroupIDs struct {
+			ModelsService string `mapstructure:"models_service"`
+		} `mapstructure:"group_ids"`
+		Topics struct {
+			ProcessedData string `mapstructure:"processed_data"`
 		} `mapstructure:"topics"`
 	} `mapstructure:"kafka"`
 }

@@ -4,7 +4,10 @@ go 1.24.0
 
 toolchain go1.24.7
 
-require github.com/spf13/viper v1.21.0
+require (
+	github.com/go-chi/chi v1.5.5
+	github.com/spf13/viper v1.21.0
+)
 
 require (
 	github.com/ClickHouse/ch-go v0.68.0 // indirect
@@ -22,6 +25,7 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/sagikazarmark/locafero v0.11.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
+	github.com/segmentio/kafka-go v0.4.49
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spf13/afero v1.15.0 // indirect

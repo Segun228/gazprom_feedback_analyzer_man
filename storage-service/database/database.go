@@ -8,7 +8,6 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/config"
-	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/migrations"
 )
 
 var DB clickhouse.Conn
@@ -39,6 +38,4 @@ func NewConnection() {
 	DB = conn
 
 	slog.Info("Successfully connected to ClickHouse!")
-
-	migrations.Migrate(DB)
 }

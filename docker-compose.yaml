@@ -1,3 +1,4 @@
+
 services: 
   clickhouse:
     image: clickhouse/clickhouse-server:24.8
@@ -15,6 +16,24 @@ services:
       - CLICKHOUSE_USER=${CLICKHOUSE_USER}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
 
+  tabix:
+    image: spoonest/clickhouse-tabix-web-client
+    platform: linux/amd64
+    container_name: tabix_new
+    ports:
+      - "8124:80"
+    depends_on:
+      - clickhouse
+    environment:
+      CLICKHOUSE_URL: "http://clickhouse:8123"
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: default
+      CLICKHOUSE_DB: default
+    stop_grace_period: 30s
+
+
+
+
   storage-service:
     build:
       context: .
@@ -25,11 +44,37 @@ services:
       - clickhouse
     ports:
       - "3001:3001"
+    volumes:
+      - ./storage-service/seeders:/app/seeders
     environment:
       - DB_NAME=${CLICKHOUSE_DB}
       - DB_USER=${CLICKHOUSE_USER}
       - DB_PASSWORD=${CLICKHOUSE_PASSWORD}
       - KAFKA_BROKERS=${KAFKA_BROKERS}
+      - DB_SEEDERS_FILE=${DB_SEEDERS_FILE}
+      - DB_DROP_EVERY_RELAUNCH=${DB_DROP_EVERY_RELAUNCH}
+  models-service:
+    build:
+      context: .
+      dockerfile: ./model-service/Dockerfile
+    container_name: models-service
+    restart: on-failure
+    ports:
+      - "3002:3002"
+    depends_on:
+      - kafka
+    environment:
+      - SENTIMENT_MODEL_PATH=/app/sentimentmodel
+      - KAFKA_BROKER_DOCKER=${KAFKA_BROKER_DOCKER}
+      - KAFKA_BROKER_URL=${KAFKA_BROKER_URL}
+      - KAFKA_TOPIC=${KAFKA_TOPIC}
+      - PRODUCER_CLIENT_ID=${PRODUCER_CLIENT_ID}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
   api-gateway:
     build:
       context: .
@@ -40,16 +85,17 @@ services:
       - "3000:3000"
     depends_on:
       - storage-service
+      - models-service
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
-    container_name: zookeeper
+    container_name: zookeeper_new
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     
   kafka:
     image: confluentinc/cp-kafka:7.3.0
-    container_name: kafka
+    container_name: kafka_new
     depends_on:
       - zookeeper
     ports:
@@ -71,7 +117,7 @@ services:
   
   kafdrop:
     image: obsidiandynamics/kafdrop:latest
-    container_name: kafdrop
+    container_name: kafdrop_new
     depends_on:
       - kafka
     ports:
@@ -79,7 +125,23 @@ services:
     environment:
       KAFKA_BROKERCONNECT: kafka:9092
 
+  dashboard:
+      image: grafana/grafana-oss:latest
+      container_name: grafana_new
+      ports:
+        - "8088:8088"
+      environment:
+        - GF_SECURITY_ADMIN_USER=admin
+        - GF_SECURITY_ADMIN_PASSWORD=admin
+        - GF_SERVER_HTTP_PORT=8088
+      depends_on:
+        - clickhouse
+      volumes:
+        - grafana_data:/var/lib/grafana
 
 volumes:
   clickhouse_data:
   clickhouse_config:
+  superset_data:
+  grafana_data:
+  metabase-data:

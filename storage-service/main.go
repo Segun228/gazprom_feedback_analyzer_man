@@ -10,34 +10,48 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/api"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/config"
 	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/database"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/messaging"
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/migrations"
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/seeders"
+	"github.com/Segun228/gazprom_feedback_analyzer_man/storage-service/store"
 )
 
 func main() {
 	config.InitLogger()
 	config.InitConfig()
 
+	messaging.InitTopicsNames()
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	database.NewConnection()
+	db := database.DB
 
-	r := chi.NewRouter()
+	if config.Cfg.DB.DropEveryRelaunch {
+		migrations.DropTables(db)
+	}
 
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	migrations.Migrate(db)
 
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Storage service is up and running!")
-	})
+	slog.Info(fmt.Sprintf("%v", config.Cfg.DB.DropEveryRelaunch))
+
+	dataStore := store.NewDataStore(db)
+	seeders.Seed(db, dataStore)
+
+	messaging.InitTopics()
+
+	router := api.SetupRoutes(dataStore)
 
 	httpServer := &http.Server{
 		Addr:    ":" + config.Cfg.HTTP.Port,
-		Handler: r,
+		Handler: router,
 	}
+
+	messaging.StartConsumers(ctx, dataStore)
 
 	go func() {
 		slog.Info("starting storage service", "port", config.Cfg.HTTP.Port)
