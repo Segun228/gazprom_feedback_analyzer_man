@@ -308,6 +308,7 @@ gazprom_feedback_analyzer/
 admin
 admin123
 ```
+![Окно аутентефикации](/assets/auth.png)
 
 После этого вам необходимо будет выбрать главный дашборд
 
@@ -320,7 +321,13 @@ admin123
 
 ## 🎥 Демонстрация работы
 
-[Демо видео работы](https://disk.yandex.ru/i/P_cESB_RFAJBAA)
+![Category barchart](/assets/gr1.png)
+
+![Sentiment time series](/assets/gr2.png)
+
+![Category barchart](/assets/gr3.png)
+
+[Whole dashboard](https://disk.yandex.ru/i/P_cESB_RFAJBAA)
 
 
 
