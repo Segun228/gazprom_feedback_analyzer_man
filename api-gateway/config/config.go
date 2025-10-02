@@ -13,9 +13,9 @@ type Config struct {
 		Port string `mapstructure:"port"`
 	} `mapstructure:"http"`
 	URLs struct {
-		StorageService    string `mapstructure:"storage_service"`
-		SupersetDashboard string `mapstructure:"superset_dashboard"`
-		ModelsService     string `mapstructure:"models_service"`
+		StorageService string `mapstructure:"storage_service"`
+		Dashboard      string `mapstructure:"dashboard"`
+		ModelsService  string `mapstructure:"models_service"`
 	} `mapstructure:"urls"`
 }
 

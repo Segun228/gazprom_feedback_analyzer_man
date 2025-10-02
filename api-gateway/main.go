@@ -28,7 +28,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if config.Cfg.URLs.SupersetDashboard == "" {
+	if config.Cfg.URLs.Dashboard == "" {
 		slog.Error("SUPERSET_DASHBOARD_URL is not set")
 		os.Exit(1)
 	}
@@ -48,7 +48,7 @@ func main() {
 
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if after, ok := strings.CutPrefix(r.URL.Path, "/superset"); ok {
+			if after, ok := strings.CutPrefix(r.URL.Path, "/dashboard"); ok {
 				path := after
 				if path == "" {
 					path = "/"
