@@ -28,6 +28,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if config.Cfg.URLs.HealthService == "" {
+		slog.Error("HEALTH_SERVICE_URL is not set")
+		os.Exit(1)
+	}
+
 	if config.Cfg.URLs.Dashboard == "" {
 		slog.Error("SUPERSET_DASHBOARD_URL is not set")
 		os.Exit(1)
@@ -49,6 +54,9 @@ func main() {
 
 	storageProxyHandler := http.StripPrefix("/storage", storageProxy)
 	modelsProxyHandler := http.StripPrefix("/models", modelsProxy)
+
+	healthProxy := createReverseProxy(config.Cfg.URLs.HealthService)
+	healthProxyHandler := http.StripPrefix("/health", healthProxy)
 
 	r := chi.NewRouter()
 
@@ -72,6 +80,8 @@ func main() {
 
 		r.Handle("/dashboard", http.RedirectHandler("/dashboard/", http.StatusMovedPermanently))
 		r.Handle("/dashboard/*", dashboardProxyHandler)
+
+		r.Get("/health", healthProxyHandler.ServeHTTP)
 	})
 
 	httpServer := &http.Server{

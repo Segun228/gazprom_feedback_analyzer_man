@@ -72,6 +72,17 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+
+  health:
+    build:
+      context: ./health
+      dockerfile: ./health/Dockerfile
+    container_name: health-check
+    restart: on-failure
+    ports:
+      - "1080:1080"
+
+
   api-gateway:
     build:
       context: .

@@ -17,6 +17,7 @@ type Config struct {
 		StorageService string `mapstructure:"storage_service"`
 		Dashboard      string `mapstructure:"dashboard"`
 		ModelsService  string `mapstructure:"models_service"`
+		HealthService  string `mapstructure:"health_service"`
 	} `mapstructure:"urls"`
 }
 
