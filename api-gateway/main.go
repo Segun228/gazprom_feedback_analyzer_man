@@ -55,6 +55,11 @@ func main() {
 	r.Group(func(r chi.Router) {
 		slog.Info("setting up public routes")
 
+		// Редирект с корня на дашборд
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/dashboard/", http.StatusMovedPermanently)
+		})
+
 		r.Get("/storage/health", storageProxyHandler.ServeHTTP)
 
 		r.Get("/storage", storageProxyHandler.ServeHTTP)
