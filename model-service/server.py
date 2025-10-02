@@ -168,11 +168,12 @@ def predict_batch_endpoint(req: PredictBatchRequest):
     
     for item, sent_pred, sent_prob, topics in zip(req.data, sentiment_preds, sentiment_probs, topics_batch):
         sentiment_text = map_sentiment_to_text(sent_pred)
+        sentiments_per_topic = [sentiment_text] * len(topics)
         
         predictions.append(PredictionItem(
             id=item.id,
             topics=topics,
-            sentiments=[sentiment_text]
+            sentiments=sentiments_per_topic
         ))
         
         kafka_messages.append({
@@ -181,8 +182,6 @@ def predict_batch_endpoint(req: PredictBatchRequest):
             "date": datetime.now(timezone.utc).isoformat(),
             "tags": topics
         })
-    
-    build_message_batch(kafka_messages)
     
     return PredictBatchResponse(predictions=predictions)
 
