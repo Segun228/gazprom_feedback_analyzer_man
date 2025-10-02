@@ -9,7 +9,11 @@ pnpm-debug.log*
 lerna-debug.log*  
 
 # 🔒 COnfidentional environment files
-.env  
+.env
+
+# 📊 Grafana generated provisioning files (generated from .template files)
+grafana_provisioning/datasources/clickhouse.yml
+grafana_provisioning/dashboards/dashboard.json
 
 # 📦 Node.js dir
 node_modules/  
@@ -89,12 +93,3 @@ pip-log.txt
 pip
 =======
 *.sw?
-
-# Игнорировать все JSON-файлы
-*.json
-
-# Игнорировать все CSV-файлы
-*.csv
-
-# Игнорировать все Excel-файлы
-*.xlsx

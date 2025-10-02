@@ -1,6 +1,7 @@
 http:
   port: "3000"
+  public_domain: ""
 urls:
   storage_service: "http://storage-service:3001"
-  superset_dashboard: "http://dashboard:8088"
+  dashboard: "http://grafana:8088"
   models_service: "http://models-service:3002"

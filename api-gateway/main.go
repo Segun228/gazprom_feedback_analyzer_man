@@ -28,7 +28,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if config.Cfg.URLs.SupersetDashboard == "" {
+	if config.Cfg.URLs.Dashboard == "" {
 		slog.Error("SUPERSET_DASHBOARD_URL is not set")
 		os.Exit(1)
 	}
@@ -38,35 +38,26 @@ func main() {
 		os.Exit(1)
 	}
 
+	if config.Cfg.HTTP.PublicDomain == "" {
+		slog.Error("HTTP_PUBLIC_DOMAIN is not set")
+		os.Exit(1)
+	}
+
 	storageProxy := createReverseProxy(config.Cfg.URLs.StorageService)
 	modelsProxy := createReverseProxy(config.Cfg.URLs.ModelsService)
+	dashboardProxyHandler := createDashboardProxyHandler(config.Cfg.URLs.Dashboard)
 
 	storageProxyHandler := http.StripPrefix("/storage", storageProxy)
 	modelsProxyHandler := http.StripPrefix("/models", modelsProxy)
 
 	r := chi.NewRouter()
 
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if after, ok := strings.CutPrefix(r.URL.Path, "/superset"); ok {
-				path := after
-				if path == "" {
-					path = "/"
-				}
-				redirectURL := "http://localhost:8088" + path
-				if r.URL.RawQuery != "" {
-					redirectURL += "?" + r.URL.RawQuery
-				}
-				slog.Info("Redirecting superset request", "from", r.URL.Path, "to", redirectURL)
-				http.Redirect(w, r, redirectURL, http.StatusMovedPermanently)
-				return
-			}
-			next.ServeHTTP(w, r)
-		})
-	})
-
 	r.Group(func(r chi.Router) {
 		slog.Info("setting up public routes")
+
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/dashboard/", http.StatusMovedPermanently)
+		})
 
 		r.Get("/storage/health", storageProxyHandler.ServeHTTP)
 
@@ -78,6 +69,9 @@ func main() {
 		r.Get("/models/health", modelsProxyHandler.ServeHTTP)
 		r.Post("/models/predict", modelsProxyHandler.ServeHTTP)
 		r.Post("/models/predict_single", modelsProxyHandler.ServeHTTP)
+
+		r.Handle("/dashboard", http.RedirectHandler("/dashboard/", http.StatusMovedPermanently))
+		r.Handle("/dashboard/*", dashboardProxyHandler)
 	})
 
 	httpServer := &http.Server{
@@ -116,4 +110,35 @@ func createReverseProxy(targetURL string) *httputil.ReverseProxy {
 	}
 
 	return httputil.NewSingleHostReverseProxy(remote)
+}
+
+func createDashboardProxyHandler(targetURL string) http.Handler {
+	slog.Info("Creating dashboard proxy handler", "target", targetURL)
+	remote, err := url.Parse(targetURL)
+	if err != nil {
+		slog.Error("failed to parse target url", "url", targetURL, "error", err)
+		os.Exit(1)
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(remote)
+
+	internalHost := remote.Host
+	publicDomain := config.Cfg.HTTP.PublicDomain
+
+	proxy.ModifyResponse = func(resp *http.Response) error {
+		location := resp.Header.Get("Location")
+		if location != "" && len(location) > 0 {
+			if strings.Contains(location, internalHost) {
+				newLocation := strings.Replace(location, internalHost, publicDomain, 1)
+				resp.Header.Set("Location", newLocation)
+				slog.Info("Modified location header", "original", location, "modified", newLocation)
+			}
+		}
+		return nil
+	}
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("Dashboard proxy request", "method", r.Method, "path", r.URL.Path)
+		proxy.ServeHTTP(w, r)
+	})
 }

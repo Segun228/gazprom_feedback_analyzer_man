@@ -18,28 +18,60 @@
 
 ## 🚀 Запуск
 
+### Локальная разработка
+
 1. Клонировать репозиторий:
 
    ```bash
-   git clone  https://github.com/Segun228/gazprom_feedback_analyzer_man
+   git clone https://github.com/Segun228/gazprom_feedback_analyzer_man
    cd gazprom_feedback_analyzer_man
    ```
 
-1. Создать файл `.env` в корне проекта и заполнить в соответствии с `.env.example`
+2. Создать файл `.env` в корне проекта:
 
-1. Запустить сервисы:
+   ```bash
+   cp .env.example .env
+   # Отредактировать при необходимости
+   ```
+
+3. Запустить сервисы:
 
     ```bash
     docker-compose up --build
     ```
 
-1. Проверить, что все поднялось:
+4. Проверить, что все поднялось:
 
-   - API Gateway: [http://localhost:3000]
-   - storage-service: [http://localhost:3001]
-   - ClickHouse (HTTP): [http://localhost:8123]
-   - Kafka (локальный доступ): [localhost:29092]
-   - Kafdrop: [http://localhost:19000]
+   - **API Gateway**: `http://localhost:3000`
+   - **Grafana Dashboard**: `http://localhost:3000/dashboard` (admin/admin123)
+   - **storage-service**: `http://localhost:3001`
+   - **ClickHouse (HTTP)**: `http://localhost:8123`
+   - **Kafka (локальный доступ)**: localhost:29092
+   - **Kafdrop**: `http://localhost:19000`
+
+### 🌍 Деплой на production/новый сервер
+
+**Настройте `.env` и запустите:**
+
+```env
+# Публичный домен
+HTTP_PUBLIC_DOMAIN=your-domain.com:3000
+
+# ClickHouse
+CLICKHOUSE_DB=db
+CLICKHOUSE_USER=admin
+CLICKHOUSE_PASSWORD=password
+```
+
+```bash
+docker compose up -d
+```
+
+> 🎉 Конфигурация Grafana генерируется автоматически из шаблонов (`*.template`) с подстановкой значений из `.env` при каждом запуске.
+
+```bash
+docker compose up -d
+```
 
 ## 🗂️ Структура проекта
 

@@ -19,7 +19,7 @@ services:
   tabix:
     image: spoonest/clickhouse-tabix-web-client
     platform: linux/amd64
-    container_name: tabix_new
+    container_name: tabix
     ports:
       - "8124:80"
     depends_on:
@@ -30,9 +30,6 @@ services:
       CLICKHOUSE_PASSWORD: default
       CLICKHOUSE_DB: default
     stop_grace_period: 30s
-
-
-
 
   storage-service:
     build:
@@ -83,19 +80,21 @@ services:
     restart: on-failure
     ports:
       - "3000:3000"
+    environment:
+      - HTTP_PUBLIC_DOMAIN=${HTTP_PUBLIC_DOMAIN}
     depends_on:
       - storage-service
       - models-service
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
-    container_name: zookeeper_new
+    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     
   kafka:
     image: confluentinc/cp-kafka:7.3.0
-    container_name: kafka_new
+    container_name: kafka
     depends_on:
       - zookeeper
     ports:
@@ -117,7 +116,7 @@ services:
   
   kafdrop:
     image: obsidiandynamics/kafdrop:latest
-    container_name: kafdrop_new
+    container_name: kafdrop
     depends_on:
       - kafka
     ports:
@@ -127,21 +126,32 @@ services:
 
   dashboard:
       image: grafana/grafana-oss:latest
-      container_name: grafana_new
+      container_name: grafana
+      entrypoint: /entrypoint.sh
       ports:
         - "8088:8088"
       environment:
-        - GF_SECURITY_ADMIN_USER=admin
-        - GF_SECURITY_ADMIN_PASSWORD=admin
+        - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+        - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
         - GF_SERVER_HTTP_PORT=8088
+        - GF_SERVER_DOMAIN=${HTTP_PUBLIC_DOMAIN}
+        - GF_SERVER_ROOT_URL=http://${HTTP_PUBLIC_DOMAIN}/dashboard
+        - GF_SERVER_SERVE_FROM_SUB_PATH=true
+        - GF_PATHS_PROVISIONING=/tmp/grafana-provisioning
+        - GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
+        - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+        - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+        - CLICKHOUSE_DB=${CLICKHOUSE_DB}
       depends_on:
         - clickhouse
       volumes:
         - grafana_data:/var/lib/grafana
+        - ./grafana_provisioning/dashboards/dashboard.json.template:/var/lib/grafana/dashboards/dashboard.json.template:ro
+        - ./grafana_provisioning/datasources/clickhouse.yml.template:/etc/grafana/provisioning/datasources/clickhouse.yml.template:ro
+        - ./grafana_provisioning/entrypoint.sh:/entrypoint.sh:ro
 
 volumes:
   clickhouse_data:
   clickhouse_config:
-  superset_data:
   grafana_data:
   metabase-data:
