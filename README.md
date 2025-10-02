@@ -1,4 +1,16 @@
 # Feedback Analyzer Platform
+![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)
+![Go](https://img.shields.io/badge/go-1.21%2B-blue?logo=go&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?logo=docker&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?logo=fastapi)
+![Kafka](https://img.shields.io/badge/apache%20kafka-231F20?logo=apachekafka&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![ML Model](https://img.shields.io/badge/ML-Transformer%2C%20CatBoost-orange)
+
+![Microservices](https://img.shields.io/badge/architecture-microservices-9cf)
+![API Gateway](https://img.shields.io/badge/gateway-golang-blue)
+![ML Service](https://img.shields.io/badge/ML%20service-python-orange)
 ---
 ## 📌 Описание
 
