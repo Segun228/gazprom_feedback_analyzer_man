@@ -31,9 +31,6 @@ services:
       CLICKHOUSE_DB: default
     stop_grace_period: 30s
 
-
-
-
   storage-service:
     build:
       context: .
@@ -142,6 +139,5 @@ services:
 volumes:
   clickhouse_data:
   clickhouse_config:
-  superset_data:
   grafana_data:
   metabase-data:
