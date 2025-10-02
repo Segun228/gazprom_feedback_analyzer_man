@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from producer import build_message_batch
 MODEL_PATH = os.environ.get("SENTIMENT_MODEL_PATH", r"full_path_to_model")
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 if torch.backends.mps.is_available():
@@ -49,8 +49,12 @@ class PredictRequest(BaseModel):
     text: str
 
 
+class TextData(BaseModel):
+    id: int
+    text: str
+
 class PredictBatchRequest(BaseModel):
-    texts: List[str]
+    data: List[TextData]
 
 
 from datetime import datetime
@@ -65,20 +69,43 @@ class PredictResponse(BaseModel):
         return {
             "text": self.text,
             "sentiment": self.label,
-            "date": datetime.now().isoformat(),
+            "date": datetime.now(timezone.utc).isoformat(),
             "tags": self.tags
         }
 
+class PredictionItem(BaseModel):
+    id: int
+    topics: List[str]
+    sentiments: List[str]
+
 
 class PredictBatchResponse(BaseModel):
-    results: List[PredictResponse]
-
-    def get_list_json_response(self):
-        return [r.get_json_response() for r in self.results]
+    predictions: List[PredictionItem]
 
 
 def extract_tags(text: str) -> List[str]:
     return [w for w in text.lower().split() if len(w) > 3][:5]
+
+def map_sentiment_to_text(label: int) -> str:
+    """Маппинг числового sentiment в текстовый"""
+    sentiment_map = {
+        0: "отрицательно",
+        1: "нейтрально",
+        2: "положительно"
+    }
+    return sentiment_map.get(label, "нейтрально")
+
+def extract_topics(text: str, tags: List[str]) -> List[str]:
+    """Извлекаем топики из текста (упрощенная версия)"""
+    topics = []
+    if any(word in text.lower() for word in ['банк', 'обслуживание', 'сервис']):
+        topics.append("Обслуживание")
+    if any(word in text.lower() for word in ['приложение', 'мобильн']):
+        topics.append("Мобильное приложение")
+    if any(word in text.lower() for word in ['карт', 'кредит']):
+        topics.append("Кредитная карта")
+    
+    return topics if topics else ["Общее"]
 
 
 @app.post("/predict_single", response_model=PredictResponse)
@@ -101,24 +128,39 @@ def predict_endpoint(req: PredictRequest):
 
 @app.post("/predict", response_model=PredictBatchResponse)
 def predict_batch_endpoint(req: PredictBatchRequest):
-    if not req.texts:
-        raise HTTPException(status_code=400, detail="Empty texts list")
+    if not req.data:
+        raise HTTPException(status_code=400, detail="Empty data list")
 
-    preds, probs = predict_logits(req.texts)
+    texts = [item.text for item in req.data]
+    preds, probs = predict_logits(texts)
 
-    results = [
-        PredictResponse(
-            text=txt,
-            label=pred,
-            probabilities=prob.tolist(),
-            tags=extract_tags(txt)
-        )
-        for txt, pred, prob in zip(req.texts, preds, probs)
-    ]
-
-    response = PredictBatchResponse(results=results)
-    build_message_batch(response.get_list_json_response())
-    return response
+    kafka_messages = []
+    predictions = []
+    
+    for item, pred, prob in zip(req.data, preds, probs):
+        tags = extract_tags(item.text)
+        topics = extract_topics(item.text, tags)
+        sentiment_text = map_sentiment_to_text(pred)
+        
+        # Для API ответа (новый формат)
+        predictions.append(PredictionItem(
+            id=item.id,
+            topics=topics,
+            sentiments=[sentiment_text]
+        ))
+        
+        # Для Kafka (старый формат)
+        kafka_messages.append({
+            "text": item.text,
+            "sentiment": pred,
+            "date": datetime.now(timezone.utc).isoformat(),
+            "tags": tags
+        })
+    
+    # Отправляем в Kafka
+    build_message_batch(kafka_messages)
+    
+    return PredictBatchResponse(predictions=predictions)
 
 @app.get("/health")
 def health():

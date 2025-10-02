@@ -125,17 +125,18 @@ def send_to_kafka(data):
             for el in data:
                 if hasattr(el, "dict"):
                     el = el.dict()
-                serialized = json.dumps(el, default=serialize_bytes).encode("utf-8")
                 messages.append(el)
-                producer.send(KAFKA_TOPIC, value=serialized)
+                # value_serializer уже делает json.dumps, передаем dict напрямую
+                producer.send(KAFKA_TOPIC, value=el)
         else:
             if hasattr(data, "dict"):
                 data = data.dict()
-            serialized = json.dumps(data, default=serialize_bytes).encode("utf-8")
             messages.append(data)
-            producer.send(KAFKA_TOPIC, value=serialized)
+            # value_serializer уже делает json.dumps, передаем dict напрямую
+            producer.send(KAFKA_TOPIC, value=data)
 
         producer.flush()
+        logging.info(f"[Kafka] Sent {len(messages)} messages to topic '{KAFKA_TOPIC}'")
         return {
             "status": "ok",
             "code": 200,
