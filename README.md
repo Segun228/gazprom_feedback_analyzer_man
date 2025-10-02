@@ -1,4 +1,4 @@
-[ЛЦТ_final.pdf](https://github.com/user-attachments/files/22666614/_final.pdf)[ЛЦТ_final.pdf](https://github.com/user-attachments/files/22666520/_final.pdf)# Feedback Analyzer Platform
+# Feedback Analyzer Platform
 ---
 ## 📌 Описание
 
