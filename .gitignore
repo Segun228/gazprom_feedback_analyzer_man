@@ -93,3 +93,9 @@ pip-log.txt
 pip
 =======
 *.sw?
+
+
+*.json
+*.csv
+*.xlsx
+
