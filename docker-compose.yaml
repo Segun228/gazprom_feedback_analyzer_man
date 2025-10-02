@@ -19,7 +19,7 @@ services:
   tabix:
     image: spoonest/clickhouse-tabix-web-client
     platform: linux/amd64
-    container_name: tabix_new
+    container_name: tabix
     ports:
       - "8124:80"
     depends_on:
@@ -87,14 +87,14 @@ services:
       - models-service
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
-    container_name: zookeeper_new
+    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     
   kafka:
     image: confluentinc/cp-kafka:7.3.0
-    container_name: kafka_new
+    container_name: kafka
     depends_on:
       - zookeeper
     ports:
@@ -116,7 +116,7 @@ services:
   
   kafdrop:
     image: obsidiandynamics/kafdrop:latest
-    container_name: kafdrop_new
+    container_name: kafdrop
     depends_on:
       - kafka
     ports:
@@ -126,7 +126,7 @@ services:
 
   dashboard:
       image: grafana/grafana-oss:latest
-      container_name: grafana_new
+      container_name: grafana
       ports:
         - "8088:8088"
       environment:
@@ -137,6 +137,10 @@ services:
         - GF_SERVER_ROOT_URL=http://${HTTP_PUBLIC_DOMAIN}/dashboard
         - GF_SERVER_SERVE_FROM_SUB_PATH=true
         - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+        - GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
+        - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+        - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+        - CLICKHOUSE_DB=${CLICKHOUSE_DB}
       depends_on:
         - clickhouse
       volumes:
