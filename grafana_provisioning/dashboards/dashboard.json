@@ -34,7 +34,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Показывает активность получения отзывов всех типов",
           "fieldConfig": {
@@ -117,7 +117,7 @@
             {
               "datasource": {
                 "type": "grafana-clickhouse-datasource",
-                "uid": "aezo4pzet1tdsf"
+                "uid": "clickhouse-datasource"
               },
               "editorType": "sql",
               "format": 0,
@@ -133,7 +133,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "timeseries",
-              "rawSql": "SELECT\n    toDate(date) AS day,\n    COUNT(*) AS \"Отзывы в день\"\nFROM Reviews.processed_data\nGROUP BY day\nORDER BY day",
+              "rawSql": "SELECT\n    toDate(date) AS day,\n    COUNT(*) AS \"Отзывы в день\"\nFROM db.processed_data\nGROUP BY day\nORDER BY day",
               "refId": "A"
             }
           ],
@@ -143,7 +143,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "fieldConfig": {
             "defaults": {
@@ -219,7 +219,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "table",
-              "rawSql": "SELECT\n    arrayJoin(tags) AS \"Продукт\",\n    COUNT(*) AS \"Количество отзывов\",\n    sum(sentiment = 0) AS \"Негативные отзывы\",\n    100 * sum(sentiment = 0) / COUNT(*) AS \"Процент негативных\",\n    sum(sentiment = 1) AS \"Нейтральные отзывы\",\n    100 * sum(sentiment = 1) / COUNT(*) AS \"Процент нейтральных\",\n    sum(sentiment = 2) AS \"Позитивные отзывы\",\n    100 * sum(sentiment = 2) / COUNT(*) AS \"Процент позитивных\"\nFROM Reviews.processed_data\nGROUP BY \"Продукт\"\nORDER BY \"Количество отзывов\" DESC",
+              "rawSql": "SELECT\n    arrayJoin(tags) AS \"Продукт\",\n    COUNT(*) AS \"Количество отзывов\",\n    sum(sentiment = 0) AS \"Негативные отзывы\",\n    100 * sum(sentiment = 0) / COUNT(*) AS \"Процент негативных\",\n    sum(sentiment = 1) AS \"Нейтральные отзывы\",\n    100 * sum(sentiment = 1) / COUNT(*) AS \"Процент нейтральных\",\n    sum(sentiment = 2) AS \"Позитивные отзывы\",\n    100 * sum(sentiment = 2) / COUNT(*) AS \"Процент позитивных\"\nFROM db.processed_data\nGROUP BY \"Продукт\"\nORDER BY \"Количество отзывов\" DESC",
               "refId": "A"
             }
           ],
@@ -243,7 +243,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Показывает общее количество отзывов на наши продукты",
           "fieldConfig": {
@@ -306,7 +306,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "table",
-              "rawSql": "SELECT\nCOUNT(*) AS negative_count\nFROM Reviews.processed_data\n",
+              "rawSql": "SELECT\nCOUNT(*) AS negative_count\nFROM db.processed_data\n",
               "refId": "A"
             }
           ],
@@ -317,7 +317,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Показывает общее количество положительных отзывов на наши продукты",
           "fieldConfig": {
@@ -380,7 +380,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "table",
-              "rawSql": "SELECT\nCOUNT(*) AS negative_count\nFROM Reviews.processed_data\nWHERE sentiment = 2",
+              "rawSql": "SELECT\nCOUNT(*) AS negative_count\nFROM db.processed_data\nWHERE sentiment = 2",
               "refId": "A"
             }
           ],
@@ -391,7 +391,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Показывает общее количество нейтральных отзывов на наши продукты",
           "fieldConfig": {
@@ -454,7 +454,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "table",
-              "rawSql": "SELECT\nCOUNT(*) AS negative_count\nFROM Reviews.processed_data\nWHERE sentiment = 1",
+              "rawSql": "SELECT\nCOUNT(*) AS negative_count\nFROM db.processed_data\nWHERE sentiment = 1",
               "refId": "A"
             }
           ],
@@ -465,7 +465,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Показывает общее количество негативных отзывов на наши продукты",
           "fieldConfig": {
@@ -528,7 +528,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "table",
-              "rawSql": "SELECT\nCOUNT(*) AS negative_count\nFROM Reviews.processed_data\nWHERE sentiment = 0",
+              "rawSql": "SELECT\nCOUNT(*) AS negative_count\nFROM db.processed_data\nWHERE sentiment = 0",
               "refId": "A"
             }
           ],
@@ -553,7 +553,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Описывает динамику отзывов в разбитии по настроению",
           "fieldConfig": {
@@ -725,7 +725,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "timeseries",
-              "rawSql": "SELECT\n    toDate(date) AS \"Дата\",\n    sum(sentiment = 0) AS \"Негативные отзывы\",\n    sum(sentiment = 1) AS \"Нейтральные отзывы\",\n    sum(sentiment = 2) AS \"Позитивные отзывы\"\nFROM Reviews.processed_data\nGROUP BY \"Дата\"\nORDER BY \"Дата\"",
+              "rawSql": "SELECT\n    toDate(date) AS \"Дата\",\n    sum(sentiment = 0) AS \"Негативные отзывы\",\n    sum(sentiment = 1) AS \"Нейтральные отзывы\",\n    sum(sentiment = 2) AS \"Позитивные отзывы\"\nFROM db.processed_data\nGROUP BY \"Дата\"\nORDER BY \"Дата\"",
               "refId": "A"
             }
           ],
@@ -735,7 +735,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Показывает суммарное общее соотношение отзывов ",
           "fieldConfig": {
@@ -881,7 +881,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "table",
-              "rawSql": "SELECT\n    sum(sentiment = 0) AS \"Негативные отзывы\",\n    sum(sentiment = 1) AS \"Нейтральные отзывы\",\n    sum(sentiment = 2) AS \"Положительные отзывы\"\nFROM Reviews.processed_data\n",
+              "rawSql": "SELECT\n    sum(sentiment = 0) AS \"Негативные отзывы\",\n    sum(sentiment = 1) AS \"Нейтральные отзывы\",\n    sum(sentiment = 2) AS \"Положительные отзывы\"\nFROM db.processed_data\n",
               "refId": "A"
             }
           ],
@@ -891,7 +891,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Показывает суммарное общее соотношение отзывов в виде бачарта",
           "fieldConfig": {
@@ -992,7 +992,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "table",
-              "rawSql": "SELECT\n    sum(sentiment = 0) AS \"Негативные отзывы\",\n    sum(sentiment = 1) AS \"Нейтральные отзывы\",\n    sum(sentiment = 2) AS \"Позитивные отзывы\"\nFROM Reviews.processed_data\n",
+              "rawSql": "SELECT\n    sum(sentiment = 0) AS \"Негативные отзывы\",\n    sum(sentiment = 1) AS \"Нейтральные отзывы\",\n    sum(sentiment = 2) AS \"Позитивные отзывы\"\nFROM db.processed_data\n",
               "refId": "A"
             }
           ],
@@ -1002,7 +1002,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Описывает динамику негативных отзывов",
           "fieldConfig": {
@@ -1159,7 +1159,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "timeseries",
-              "rawSql": "SELECT\n    sum(sentiment = 0) AS \"Отрицательные отзывы\",\n    toDate(date) AS day\nFROM Reviews.processed_data\nGROUP BY day\nORDER BY day",
+              "rawSql": "SELECT\n    sum(sentiment = 0) AS \"Отрицательные отзывы\",\n    toDate(date) AS day\nFROM db.processed_data\nGROUP BY day\nORDER BY day",
               "refId": "A"
             }
           ],
@@ -1169,7 +1169,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Описывает динамику положительных отзывов",
           "fieldConfig": {
@@ -1311,7 +1311,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "timeseries",
-              "rawSql": "SELECT\n    sum(sentiment = 2) AS \"Положительные отзывы\",\n    toDate(date) AS day\nFROM Reviews.processed_data\nGROUP BY day\nORDER BY day",
+              "rawSql": "SELECT\n    sum(sentiment = 2) AS \"Положительные отзывы\",\n    toDate(date) AS day\nFROM db.processed_data\nGROUP BY day\nORDER BY day",
               "refId": "A"
             }
           ],
@@ -1321,7 +1321,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Описывает динамику нейтральных отзывов",
           "fieldConfig": {
@@ -1478,7 +1478,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "timeseries",
-              "rawSql": "SELECT\n    sum(sentiment = 1) AS \"Нейтральные отзывы\",\n    toDate(date) AS day\nFROM Reviews.processed_data\nGROUP BY day\nORDER BY day",
+              "rawSql": "SELECT\n    sum(sentiment = 1) AS \"Нейтральные отзывы\",\n    toDate(date) AS day\nFROM db.processed_data\nGROUP BY day\nORDER BY day",
               "refId": "A"
             }
           ],
@@ -1488,7 +1488,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Описывает нормированную динамику настроения пользователей",
           "fieldConfig": {
@@ -1613,7 +1613,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "timeseries",
-              "rawSql": "SELECT\n    toDate(date) AS time,\n    (sum(sentiment = 0) * (-1) + sum(sentiment = 2)) / count(*) AS \"Отношение\"\nFROM Reviews.processed_data\nGROUP BY time\nORDER BY time",
+              "rawSql": "SELECT\n    toDate(date) AS time,\n    (sum(sentiment = 0) * (-1) + sum(sentiment = 2)) / count(*) AS \"Отношение\"\nFROM db.processed_data\nGROUP BY time\nORDER BY time",
               "refId": "A"
             }
           ],
@@ -1623,7 +1623,7 @@
         {
           "datasource": {
             "type": "grafana-clickhouse-datasource",
-            "uid": "aezo4pzet1tdsf"
+            "uid": "clickhouse-datasource"
           },
           "description": "Описывает кумулятивную нормированную динамику настроения пользователей",
           "fieldConfig": {
@@ -1772,7 +1772,7 @@
               },
               "pluginVersion": "4.10.2",
               "queryType": "timeseries",
-              "rawSql": "WITH daily AS (\n    SELECT\n        toDate(date) AS time,\n        (sum(sentiment = 0) * (-1) + sum(sentiment = 2)) / count(*) AS attitude\n    FROM Reviews.processed_data\n    GROUP BY time\n)\n\nSELECT\n    time,\n    attitude,\n    sum(attitude) OVER (ORDER BY time ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS \"Кумулятивное отношение\"\nFROM daily\nORDER BY time",
+              "rawSql": "WITH daily AS (\n    SELECT\n        toDate(date) AS time,\n        (sum(sentiment = 0) * (-1) + sum(sentiment = 2)) / count(*) AS attitude\n    FROM db.processed_data\n    GROUP BY time\n)\n\nSELECT\n    time,\n    attitude,\n    sum(attitude) OVER (ORDER BY time ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS \"Кумулятивное отношение\"\nFROM daily\nORDER BY time",
               "refId": "A"
             }
           ],
@@ -1799,7 +1799,7 @@
     {
       "datasource": {
         "type": "grafana-clickhouse-datasource",
-        "uid": "aezo4pzet1tdsf"
+        "uid": "clickhouse-datasource"
       },
       "description": "Диаграмма для отслеживания самых проблемных продуктов",
       "fieldConfig": {
@@ -1909,7 +1909,7 @@
           },
           "pluginVersion": "4.10.2",
           "queryType": "table",
-          "rawSql": "SELECT\n    arrayJoin(tags) AS \"Продукт\",\n    COUNT(*) AS \"Негативные отзывы\"\nFROM Reviews.processed_data\nWHERE sentiment = 0\nGROUP BY \"Продукт\"\nORDER BY \"Негативные отзывы\" DESC",
+          "rawSql": "SELECT\n    arrayJoin(tags) AS \"Продукт\",\n    COUNT(*) AS \"Негативные отзывы\"\nFROM db.processed_data\nWHERE sentiment = 0\nGROUP BY \"Продукт\"\nORDER BY \"Негативные отзывы\" DESC",
           "refId": "A"
         }
       ],
@@ -1919,7 +1919,7 @@
     {
       "datasource": {
         "type": "grafana-clickhouse-datasource",
-        "uid": "aezo4pzet1tdsf"
+        "uid": "clickhouse-datasource"
       },
       "description": "Диаграмма для отслеживания самых проблемных продуктов",
       "fieldConfig": {
@@ -2029,7 +2029,7 @@
           },
           "pluginVersion": "4.10.2",
           "queryType": "table",
-          "rawSql": "SELECT\n    arrayJoin(tags) AS \"Продукт\",\n    COUNT(*) AS \"Позитивные отзывы\"\nFROM Reviews.processed_data\nWHERE sentiment = 2\nGROUP BY \"Продукт\"\nORDER BY \"Позитивные отзывы\" DESC",
+          "rawSql": "SELECT\n    arrayJoin(tags) AS \"Продукт\",\n    COUNT(*) AS \"Позитивные отзывы\"\nFROM db.processed_data\nWHERE sentiment = 2\nGROUP BY \"Продукт\"\nORDER BY \"Позитивные отзывы\" DESC",
           "refId": "A"
         }
       ],
@@ -2039,7 +2039,7 @@
     {
       "datasource": {
         "type": "grafana-clickhouse-datasource",
-        "uid": "aezo4pzet1tdsf"
+        "uid": "clickhouse-datasource"
       },
       "description": "Покаывает суммарное кол-во отзывов во времени по выбранным категориям",
       "fieldConfig": {
@@ -2224,7 +2224,7 @@
           },
           "pluginVersion": "4.10.2",
           "queryType": "timeseries",
-          "rawSql": "SELECT\n    date,\n    arrayJoin(tags) AS product,\n    count(*) AS \"отзывы\"\nFROM Reviews.processed_data\nGROUP BY date, product\nORDER BY date, product",
+          "rawSql": "SELECT\n    date,\n    arrayJoin(tags) AS product,\n    count(*) AS \"отзывы\"\nFROM db.processed_data\nGROUP BY date, product\nORDER BY date, product",
           "refId": "A"
         }
       ],
@@ -2234,7 +2234,7 @@
     {
       "datasource": {
         "type": "grafana-clickhouse-datasource",
-        "uid": "aezo4pzet1tdsf"
+        "uid": "clickhouse-datasource"
       },
       "description": "Покаывает суммарное кол-во отзывов во времени по выбранным категориям",
       "fieldConfig": {
@@ -2417,7 +2417,7 @@
           },
           "pluginVersion": "4.10.2",
           "queryType": "timeseries",
-          "rawSql": "SELECT\n    date,\n    concat(arrayJoin(tags), ': ', \n        CASE\n            WHEN sentiment = 0 THEN 'negative'\n            WHEN sentiment = 1 THEN 'neutral'\n            WHEN sentiment = 2 THEN 'positive'\n        END\n    ) AS series,\n    count(*) AS \"Отзывы\"\nFROM Reviews.processed_data\nGROUP BY date, series\nORDER BY date, series",
+          "rawSql": "SELECT\n    date,\n    concat(arrayJoin(tags), ': ', \n        CASE\n            WHEN sentiment = 0 THEN 'negative'\n            WHEN sentiment = 1 THEN 'neutral'\n            WHEN sentiment = 2 THEN 'positive'\n        END\n    ) AS series,\n    count(*) AS \"Отзывы\"\nFROM db.processed_data\nGROUP BY date, series\nORDER BY date, series",
           "refId": "A"
         }
       ],
@@ -2439,13 +2439,13 @@
             "колонки"
           ]
         },
-        "definition": "SELECT DISTINCT arrayJoin(tags) FROM Reviews.processed_data\n",
+        "definition": "SELECT DISTINCT arrayJoin(tags) FROM db.processed_data\n",
         "includeAll": true,
         "label": "product",
         "multi": true,
         "name": "product",
         "options": [],
-        "query": "SELECT DISTINCT arrayJoin(tags) FROM Reviews.processed_data\n",
+        "query": "SELECT DISTINCT arrayJoin(tags) FROM db.processed_data\n",
         "refresh": 1,
         "regex": "",
         "type": "query"

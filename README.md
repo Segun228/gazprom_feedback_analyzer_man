@@ -18,28 +18,69 @@
 
 ## 🚀 Запуск
 
+### Локальная разработка
+
 1. Клонировать репозиторий:
 
    ```bash
-   git clone  https://github.com/Segun228/gazprom_feedback_analyzer_man
+   git clone https://github.com/Segun228/gazprom_feedback_analyzer_man
    cd gazprom_feedback_analyzer_man
    ```
 
-1. Создать файл `.env` в корне проекта и заполнить в соответствии с `.env.example`
+2. Создать файл `.env` в корне проекта:
 
-1. Запустить сервисы:
+   ```bash
+   cp .env.example .env
+   # Отредактировать при необходимости
+   ```
+
+3. Запустить сервисы:
 
     ```bash
     docker-compose up --build
     ```
 
-1. Проверить, что все поднялось:
+4. Проверить, что все поднялось:
 
-   - API Gateway: [http://localhost:3000]
-   - storage-service: [http://localhost:3001]
-   - ClickHouse (HTTP): [http://localhost:8123]
-   - Kafka (локальный доступ): [localhost:29092]
-   - Kafdrop: [http://localhost:19000]
+   - **API Gateway**: `http://localhost:3000`
+   - **Grafana Dashboard**: `http://localhost:3000/dashboard` (admin/admin123)
+   - **storage-service**: `http://localhost:3001`
+   - **ClickHouse (HTTP)**: `http://localhost:8123`
+   - **Kafka (локальный доступ)**: localhost:29092
+   - **Kafdrop**: `http://localhost:19000`
+
+### 🌍 Деплой на production/новый сервер
+
+**1. Настроить публичный домен** в `.env`:
+
+```env
+HTTP_PUBLIC_DOMAIN=your-domain.com:3000  # или IP: 192.168.1.100:3000
+```
+
+**2. Если имя базы данных отличается от `db`:**
+
+```bash
+# В datasources/clickhouse.yml строка 13
+sed -i 's/defaultDatabase: db/defaultDatabase: your_db_name/' grafana_provisioning/datasources/clickhouse.yml
+
+# В dashboard.json (все SQL запросы)
+sed -i 's/FROM db\./FROM your_db_name./g' grafana_provisioning/dashboards/dashboard.json
+```
+
+**3. Если креды ClickHouse другие:**
+
+```bash
+# В datasources/clickhouse.yml строки 14, 16
+# Замените username и password вручную
+```
+
+**4. Запустить:**
+
+```bash
+docker compose up -d
+```
+
+> 💡 **Важно**: UID datasource (`clickhouse-datasource`) фиксированный для всех окружений и менять его не нужно.
 
 ## 🗂️ Структура проекта
 
