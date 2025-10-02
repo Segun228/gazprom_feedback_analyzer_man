@@ -12,7 +12,6 @@ from datetime import datetime, timezone
 
 MODEL_PATH = os.environ.get("SENTIMENT_MODEL_PATH", r"full_path_to_model")
 
-# Определение device
 if torch.backends.mps.is_available():
     device = torch.device("mps")
 elif torch.cuda.is_available():
@@ -21,7 +20,6 @@ else:
     device = torch.device("cpu")
 print("Using device:", device)
 
-# Загрузка sentiment модели
 try:
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     sentiment_model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH).to(device)
@@ -29,7 +27,6 @@ try:
 except Exception as e:
     raise RuntimeError(f"Ошибка при загрузке sentiment модели/tokenizer из {MODEL_PATH}: {e}")
 
-# Загрузка topic модели (sklearn)
 try:
     with open('/app/sklearn_model.pkl', 'rb') as f:
         topic_model = pickle.load(f)
@@ -70,13 +67,10 @@ def predict_topics(texts: List[str]) -> List[List[str]]:
         return [["другое"] for _ in texts]
     
     try:
-        # Векторизация текстов
         X = vectorizer.transform(texts)
         
-        # Предсказание (multi-label binary classification)
         y_pred = topic_model.predict(X)
         
-        # Преобразование в список топиков
         results = []
         for pred_row in y_pred:
             topics = [topic_class_names[i] for i, val in enumerate(pred_row) if val == 1]
@@ -86,11 +80,6 @@ def predict_topics(texts: List[str]) -> List[List[str]]:
     except Exception as e:
         print(f"Error predicting topics: {e}")
         return [["другое"] for _ in texts]
-
-
-def extract_tags(text: str) -> List[str]:
-    """Извлекаем простые теги - слова длиннее 3 символов"""
-    return [w for w in text.lower().split() if len(w) > 3][:5]
 
 
 def map_sentiment_to_text(label: int) -> str:
@@ -150,12 +139,13 @@ def predict_endpoint(req: PredictRequest):
         raise HTTPException(status_code=400, detail="Empty text")
 
     preds, probs = predict_sentiment([req.text])
+    topics = predict_topics([req.text])[0]
 
     prediction = PredictResponse(
         text=req.text,
         label=preds[0],
         probabilities=probs[0].tolist(),
-        tags=extract_tags(req.text)
+        tags=topics 
     )
 
     build_message_batch([prediction.get_json_response()])
@@ -169,35 +159,29 @@ def predict_batch_endpoint(req: PredictBatchRequest):
 
     texts = [item.text for item in req.data]
     
-    # Предсказание sentiment
     sentiment_preds, sentiment_probs = predict_sentiment(texts)
     
-    # Предсказание topics
     topics_batch = predict_topics(texts)
 
     kafka_messages = []
     predictions = []
     
     for item, sent_pred, sent_prob, topics in zip(req.data, sentiment_preds, sentiment_probs, topics_batch):
-        tags = extract_tags(item.text)
         sentiment_text = map_sentiment_to_text(sent_pred)
         
-        # Для API ответа (новый формат)
         predictions.append(PredictionItem(
             id=item.id,
             topics=topics,
             sentiments=[sentiment_text]
         ))
         
-        # Для Kafka (старый формат)
         kafka_messages.append({
             "text": item.text,
             "sentiment": sent_pred,
             "date": datetime.now(timezone.utc).isoformat(),
-            "tags": tags
+            "tags": topics
         })
     
-    # Отправляем в Kafka
     build_message_batch(kafka_messages)
     
     return PredictBatchResponse(predictions=predictions)

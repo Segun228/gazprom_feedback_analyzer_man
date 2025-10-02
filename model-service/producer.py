@@ -126,13 +126,11 @@ def send_to_kafka(data):
                 if hasattr(el, "dict"):
                     el = el.dict()
                 messages.append(el)
-                # value_serializer уже делает json.dumps, передаем dict напрямую
                 producer.send(KAFKA_TOPIC, value=el)
         else:
             if hasattr(data, "dict"):
                 data = data.dict()
             messages.append(data)
-            # value_serializer уже делает json.dumps, передаем dict напрямую
             producer.send(KAFKA_TOPIC, value=data)
 
         producer.flush()
