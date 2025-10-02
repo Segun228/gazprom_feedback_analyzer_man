@@ -16,21 +16,6 @@ services:
       - CLICKHOUSE_USER=${CLICKHOUSE_USER}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
 
-  tabix:
-    image: spoonest/clickhouse-tabix-web-client
-    platform: linux/amd64
-    container_name: tabix
-    ports:
-      - "8124:80"
-    depends_on:
-      - clickhouse
-    environment:
-      CLICKHOUSE_URL: "http://clickhouse:8123"
-      CLICKHOUSE_USER: default
-      CLICKHOUSE_PASSWORD: default
-      CLICKHOUSE_DB: default
-    stop_grace_period: 30s
-
   storage-service:
     build:
       context: .
