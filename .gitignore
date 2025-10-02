@@ -9,7 +9,11 @@ pnpm-debug.log*
 lerna-debug.log*  
 
 # 🔒 COnfidentional environment files
-.env  
+.env
+
+# 📊 Grafana generated provisioning files (generated from .template files)
+grafana_provisioning/datasources/clickhouse.yml
+grafana_provisioning/dashboards/dashboard.json
 
 # 📦 Node.js dir
 node_modules/  
