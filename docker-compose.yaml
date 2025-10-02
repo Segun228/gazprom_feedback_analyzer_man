@@ -61,11 +61,11 @@ services:
   health:
     build:
       context: ./health
-      dockerfile: ./health/Dockerfile
+      dockerfile: Dockerfile
     container_name: health-check
     restart: on-failure
     ports:
-      - "1080:1080"
+      - "8000:8000"
 
 
   api-gateway:

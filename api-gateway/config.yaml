@@ -5,4 +5,4 @@ urls:
   storage_service: "http://storage-service:3001"
   dashboard: "http://grafana:8088"
   models_service: "http://models-service:3002"
-  health_service: "http://health:1080"
+  health_service: "http://health-check:8000"
