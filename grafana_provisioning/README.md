@@ -12,6 +12,7 @@
 ## Переменные
 
 Из `.env` подставляются:
+
 - `$CLICKHOUSE_DB` - имя базы данных
 - `$CLICKHOUSE_USER` - пользователь
 - `$CLICKHOUSE_PASSWORD` - пароль
@@ -22,6 +23,7 @@
 2. Экспортируйте: Share → Export → Save JSON
 3. Замените `dashboards/dashboard.json.template`
 4. Замените имена БД на переменную:
+
    ```bash
    sed -i 's/FROM db\./FROM $CLICKHOUSE_DB./g' dashboard.json.template
    ```

@@ -11,6 +11,7 @@ mkdir -p /tmp/grafana-provisioning/dashboards
 mkdir -p /tmp/grafana-provisioning/plugins
 mkdir -p /tmp/grafana-provisioning/notifiers
 mkdir -p /tmp/grafana-provisioning/alerting
+mkdir -p /tmp/grafana-dashboard-files
 
 # Генерируем datasource конфиг из шаблона
 if [ -f /etc/grafana/provisioning/datasources/clickhouse.yml.template ]; then
@@ -23,14 +24,14 @@ fi
 # Генерируем dashboards из шаблонов
 for template in /var/lib/grafana/dashboards/*.json.template; do
     if [ -f "$template" ]; then
-        dashboard="/tmp/grafana-provisioning/dashboards/$(basename ${template%.template})"
+        dashboard="/tmp/grafana-dashboard-files/$(basename ${template%.template})"
         sed "s/\$CLICKHOUSE_DB/${CLICKHOUSE_DB}/g" "$template" > "$dashboard"
         echo "[OK] Dashboard generated: $(basename $dashboard)"
     fi
 done
 
 # Создаем конфиг provisioning для dashboards
-cat > /tmp/grafana-provisioning/dashboards.yml <<EOF
+cat > /tmp/grafana-provisioning/dashboards/default.yml <<EOF
 apiVersion: 1
 
 providers:
@@ -42,7 +43,7 @@ providers:
     updateIntervalSeconds: 10
     allowUiUpdates: true
     options:
-      path: /tmp/grafana-provisioning/dashboards
+      path: /tmp/grafana-dashboard-files
 EOF
 
 echo "=== Provisioning complete! Starting Grafana ==="

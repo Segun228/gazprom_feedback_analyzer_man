@@ -137,7 +137,7 @@ services:
         - GF_SERVER_DOMAIN=${HTTP_PUBLIC_DOMAIN}
         - GF_SERVER_ROOT_URL=http://${HTTP_PUBLIC_DOMAIN}/dashboard
         - GF_SERVER_SERVE_FROM_SUB_PATH=true
-        - GF_PATHS_PROVISIONING=grafana-provisioning
+        - GF_PATHS_PROVISIONING=/tmp/grafana-provisioning
         - GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
         - CLICKHOUSE_USER=${CLICKHOUSE_USER}
         - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
