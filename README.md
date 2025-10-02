@@ -62,13 +62,21 @@
 **Настройте `.env` и запустите:**
 
 ```env
-# Публичный домен
-HTTP_PUBLIC_DOMAIN=your-domain.com:3000
+CLICKHOUSE_DB=
+CLICKHOUSE_USER=
+CLICKHOUSE_PASSWORD=
+DB_SEEDERS_FILE=/app/seeders/seed.csv
 
-# ClickHouse
-CLICKHOUSE_DB=db
-CLICKHOUSE_USER=admin
-CLICKHOUSE_PASSWORD=password
+DB_DROP_EVERY_RELAUNCH=false # тестовый режим. при включении сбрасывает базу данных при каждом запуске сервиса
+
+KAFKA_BROKERS=kafka:9092
+
+PRODUCER_CLIENT_ID=228
+
+GF_SECURITY_ADMIN_USER=
+GF_SECURITY_ADMIN_PASSWORD=
+
+HTTP_PUBLIC_DOMAIN=localhost:3000 # для локальной разработки localhost:3000, для продакшна на сервере: address.com (без порта), либо же ip-адресс:порт
 ```
 
 ```bash
