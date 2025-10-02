@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "http://localhost:3002"
+BASE_URL = "http://0.0.0.0:8000"
 single_example = {"text": "Очень доволен приложением банка"}
 
 resp = requests.post(f"{BASE_URL}/predict", json=single_example)

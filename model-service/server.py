@@ -1,14 +1,17 @@
+import json
 import os
+import pickle
 from typing import List
 
 import torch
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from producer import build_message_batch
-MODEL_PATH = os.environ.get("SENTIMENT_MODEL_PATH", r"full_path_to_model")
 from datetime import datetime
 
+MODEL_PATH = os.environ.get("SENTIMENT_MODEL_PATH",
+                            r"PATH_TO_MODEL")
 
 if torch.backends.mps.is_available():
     device = torch.device("mps")
@@ -23,6 +26,24 @@ try:
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH).to(device)
 except Exception as e:
     raise RuntimeError(f"Ошибка при загрузке модели/tokenizer из {MODEL_PATH}: {e}")
+
+with open("sklearn_model.pkl", "rb") as f:
+    model_classification = pickle.load(f)
+with open("vectorizer.pkl", "rb") as f:
+    vectorizer = pickle.load(f)
+with open("class_info.json", "r", encoding="utf-8") as f:
+    class_info = json.load(f)
+    class_names = class_info["class_names"]
+
+
+def extract_tags(text):
+    x_text = vectorizer.transform([text])
+    y_pred = model_classification.predict(x_text)
+    predicted_labels = []
+    for i, class_name in enumerate(class_names):
+        if y_pred[0][i] == 1:
+            predicted_labels.append(class_name)
+    return predicted_labels
 
 
 def predict_logits(texts: List[str]):
@@ -76,13 +97,11 @@ class PredictBatchResponse(BaseModel):
     def get_list_json_response(self):
         return [r.get_json_response() for r in self.results]
 
-
 def extract_tags(text: str) -> List[str]:
     return [w for w in text.lower().split() if len(w) > 3][:5]
 
-
 @app.post("/predict_single", response_model=PredictResponse)
-def predict_endpoint(req: PredictRequest):
+def predict_endpoint(req: PredictRequest, background_tasks: BackgroundTasks):
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Empty text")
 
@@ -94,17 +113,31 @@ def predict_endpoint(req: PredictRequest):
         probabilities=probs[0].tolist(),
         tags=extract_tags(req.text)
     )
+    background_tasks.add_task(build_message_batch, [prediction.get_json_response()])
 
     build_message_batch([prediction.get_json_response()])
     return prediction
 
 
 @app.post("/predict", response_model=PredictBatchResponse)
-def predict_batch_endpoint(req: PredictBatchRequest):
+def predict_batch_endpoint(req: PredictBatchRequest, background_tasks: BackgroundTasks):
     if not req.texts:
         raise HTTPException(status_code=400, detail="Empty texts list")
 
     preds, probs = predict_logits(req.texts)
+
+    results = [
+        PredictResponse(
+            text=txt,
+            label=pred,
+            probabilities=prob.tolist(),
+            tags=extract_tags(txt)
+        )
+        for txt, pred, prob in zip(req.texts, preds, probs)
+    ]
+    response = PredictBatchResponse(results=results)
+    background_tasks.add_task(build_message_batch, response.get_list_json_response())
+    return response
 
     results = [
         PredictResponse(
@@ -123,16 +156,3 @@ def predict_batch_endpoint(req: PredictBatchRequest):
 @app.get("/health")
 def health():
     return {"status": model.config.num_labels == 3, "device": str(device)}
-#
-# Text: Очень доволен приложением банка
-# Class: 2
-# Probabilities: [0.03496845066547394, 0.15588398277759552, 0.8091475367546082]
-# Text: Очень доволен приложением банка
-# Class: 2
-# Probabilities: [0.03496844694018364, 0.15588392317295074, 0.8091475963592529]
-# Text: Приложение виснет, поддержка ужас
-# Class: 0
-# Probabilities: [0.6237407326698303, 0.3564715087413788, 0.019787730649113655]
-# Text: Обычный опыт, ничего особенного
-# Class: 2
-# Probabilities: [0.007893973030149937, 0.4094514548778534, 0.5826546549797058]
