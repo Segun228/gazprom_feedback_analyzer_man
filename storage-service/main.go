@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -36,8 +35,6 @@ func main() {
 	}
 
 	migrations.Migrate(db)
-
-	slog.Info(fmt.Sprintf("%v", config.Cfg.DB.DropEveryRelaunch))
 
 	dataStore := store.NewDataStore(db)
 	seeders.Seed(db, dataStore)

@@ -183,6 +183,8 @@ def predict_batch_endpoint(req: PredictBatchRequest):
             "tags": topics
         })
     
+    build_message_batch(kafka_messages)
+    
     return PredictBatchResponse(predictions=predictions)
 
 

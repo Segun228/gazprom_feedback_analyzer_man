@@ -62,9 +62,9 @@ services:
       - kafka
     environment:
       - SENTIMENT_MODEL_PATH=/app/sentimentmodel
-      - KAFKA_BROKER_DOCKER=${KAFKA_BROKER_DOCKER}
-      - KAFKA_BROKER_URL=${KAFKA_BROKER_URL}
-      - KAFKA_TOPIC=${KAFKA_TOPIC}
+      - KAFKA_BROKER_DOCKER=${KAFKA_BROKERS}
+      - KAFKA_BROKER_URL=${KAFKA_BROKERS}
+      - KAFKA_TOPIC=processed_data
       - PRODUCER_CLIENT_ID=${PRODUCER_CLIENT_ID}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3002/health"]

@@ -55,6 +55,8 @@ def ensure_topic_exists():
 
 _producer = None
 
+ensure_topic_exists()
+
 def get_producer():
     global _producer
     if _producer is None:
