@@ -51,36 +51,27 @@
 
 ### 🌍 Деплой на production/новый сервер
 
-**1. Настроить публичный домен** в `.env`:
+**Настройте `.env` и запустите:**
 
 ```env
-HTTP_PUBLIC_DOMAIN=your-domain.com:3000  # или IP: 192.168.1.100:3000
+# Публичный домен
+HTTP_PUBLIC_DOMAIN=your-domain.com:3000
+
+# ClickHouse
+CLICKHOUSE_DB=db
+CLICKHOUSE_USER=admin
+CLICKHOUSE_PASSWORD=password
 ```
-
-**2. Если имя базы данных отличается от `db`:**
-
-```bash
-# В datasources/clickhouse.yml строка 13
-sed -i 's/defaultDatabase: db/defaultDatabase: your_db_name/' grafana_provisioning/datasources/clickhouse.yml
-
-# В dashboard.json (все SQL запросы)
-sed -i 's/FROM db\./FROM your_db_name./g' grafana_provisioning/dashboards/dashboard.json
-```
-
-**3. Если креды ClickHouse другие:**
-
-```bash
-# В datasources/clickhouse.yml строки 14, 16
-# Замените username и password вручную
-```
-
-**4. Запустить:**
 
 ```bash
 docker compose up -d
 ```
 
-> 💡 **Важно**: UID datasource (`clickhouse-datasource`) фиксированный для всех окружений и менять его не нужно.
+> 🎉 Конфигурация Grafana генерируется автоматически из шаблонов (`*.template`) с подстановкой значений из `.env` при каждом запуске.
+
+```bash
+docker compose up -d
+```
 
 ## 🗂️ Структура проекта
 

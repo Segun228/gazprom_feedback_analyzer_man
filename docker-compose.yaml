@@ -127,6 +127,7 @@ services:
   dashboard:
       image: grafana/grafana-oss:latest
       container_name: grafana
+      entrypoint: /entrypoint.sh
       ports:
         - "8088:8088"
       environment:
@@ -136,7 +137,7 @@ services:
         - GF_SERVER_DOMAIN=${HTTP_PUBLIC_DOMAIN}
         - GF_SERVER_ROOT_URL=http://${HTTP_PUBLIC_DOMAIN}/dashboard
         - GF_SERVER_SERVE_FROM_SUB_PATH=true
-        - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+        - GF_PATHS_PROVISIONING=grafana-provisioning
         - GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
         - CLICKHOUSE_USER=${CLICKHOUSE_USER}
         - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
@@ -145,9 +146,9 @@ services:
         - clickhouse
       volumes:
         - grafana_data:/var/lib/grafana
-        - ./grafana_provisioning/dashboards:/etc/grafana/provisioning/dashboards
-        - ./grafana_provisioning/dashboards:/var/lib/grafana/dashboards
-        - ./grafana_provisioning/datasources:/etc/grafana/provisioning/datasources
+        - ./grafana_provisioning/dashboards/dashboard.json.template:/var/lib/grafana/dashboards/dashboard.json.template:ro
+        - ./grafana_provisioning/datasources/clickhouse.yml.template:/etc/grafana/provisioning/datasources/clickhouse.yml.template:ro
+        - ./grafana_provisioning/entrypoint.sh:/entrypoint.sh:ro
 
 volumes:
   clickhouse_data:
